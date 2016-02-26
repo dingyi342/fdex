@@ -5,7 +5,7 @@ fdex is a file indexing library for indexing folders and files in both continuou
 
 
 
-##### To load the library
+#### To load the library
 Put fdex into loadpath and require the package.
 
 ```el
@@ -13,7 +13,7 @@ Put fdex into loadpath and require the package.
 ```
 
 
-##### Make a new index
+#### Make a new index
 Assume you want to index the folder location
 `/home/user/documents/project/helloworld/`,
 you need to create a new `fdex` hashtable using `fdex-new`.
@@ -27,7 +27,7 @@ Now you have `indextable` holding a blank fdex hashtable.
 There are two ways to index the files with this blank fdex hashtable.
 
 
-##### Indexing - in a continuous way
+#### Indexing - in a continuous way
 Using `fdex-update`, you can index all folders and files. However, the process is 'blocking' which means Emacs will be freezed if large volume of folder is to be indexed.
 
 ```el
@@ -35,7 +35,7 @@ Using `fdex-update`, you can index all folders and files. However, the process i
 ```
 
 
-##### Indexing - in a discrete way
+#### Indexing - in a discrete way
 Using `fdex-updateRoot` and `fdex-updateNext`, indexing process can be done seperately. In simple terms,
 > `fdex-updateRoot` + (`fdex-updateNext` x N) = one complete index cycle
 
@@ -60,7 +60,7 @@ The use of `fdex-updateRoot` and `fdex-updateNext` will become more meaning if y
 ```
 
 
-##### To get a list of files
+#### To get a list of files
 Use `fdex-get-filelist` to get a list of files under indexed path.
 
 ```el
