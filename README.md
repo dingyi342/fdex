@@ -49,7 +49,7 @@ Using `fdex-updateRoot` and `fdex-updateNext`, indexing process can be done sepe
 ;; The returning nil denotes the index cycle has been complete
 ```
 
-The use of `fdex-updateRoot` and `fdex-updateNext` will become more meaning if you control how it is invoked.
+The use of `fdex-updateRoot` and `fdex-updateNext` will become more meaningful if you control how it is invoked.
 
 ```el
 (defun my-update-control ()
@@ -65,6 +65,13 @@ Use `fdex-get-filelist` to get a list of files under indexed path.
 
 ```el
 (fdex-get-filelist indextable t)
+```
+
+#### To get a list of folders
+Use `fdex-get-filelist` to get a list of folders under indexed path.
+
+```el
+(fdex-get-folderlist indextable t)
 ```
 
 

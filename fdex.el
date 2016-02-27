@@ -446,6 +446,38 @@ Descrip.:\t t for full file path, nil for path relative to index root."
     filelist))
 
 ;;;###autoload
+(defun fdex-get-folderlist (nodehash &optional full)
+  "Get a list of folders under NODEHASH.
+If FULL is t, the list contains full path.
+If FULL is nil, the list contains path relative to index root.
+
+Return
+Type:\t\t string list
+Descrip.:\t A list of string of folder in NODENASH
+
+NODEHASH
+Type:\t\t hashtable
+Descrip.:\t A hashtable created by `fdex-new'
+
+FULL
+Type:\t\t bool
+Descrip.:\t t for full file path, nil for path relative to index root."
+  (let ((nodelist nil)
+        (folderlist nil))
+
+    ;; Get folderlist and folder list from root nodes
+    (setq folderlist (list (or (and full (fdexControl-rootPath (gethash fdex-CONTROLNODE nodehash))) "INDEXROOT")))
+    (setq nodelist (append (fdexNode-childrenNode (gethash fdex-ROOTNODE nodehash)) nodelist))
+
+    (while (car-safe nodelist)
+      (let ((folder (car nodelist)))
+        (setq nodelist (cdr nodelist))
+        (setq nodelist (append (fdexNode-childrenNode (gethash folder nodehash)) nodelist))
+        (setq folderlist (append folderlist
+                                 (list (concat (and full (fdexControl-rootPath (gethash fdex-CONTROLNODE nodehash))) folder))))))
+    folderlist))
+
+;;;###autoload
 (defun fdex-get-rootPath (nodehash)
   "Obtain root path of NODEHASH.
 
