@@ -1,0 +1,129 @@
+;;; Old implementation of fdex-updateNode
+;;; ========================================
+;; (defun fdex-updateNode-old (nodehash nodeID &optional priority)
+;;   "This function is not inteneded to be called by user!
+
+;; Update node specified by NODEID in NODEHASH.
+;; PRIORITY can be set to t to indicate the node update is called in priority.
+;; The children nodes of the current node
+;; will also be set to priority update next time.
+;; The PRIORITY is only valid for one time.
+
+;; NODEHASH
+;; Type:\t\t hashtable
+;; Descrip.:\t A hashtable created by `fdex-new'
+
+;; NODEID
+;; Type:\t\t NODEID
+;; Descrip.:\t This is a internal maintained variable to denote a node."
+;;   (let* ((control (gethash fdex-CONTROLNODE nodehash))
+;;          (node (gethash nodeID nodehash))
+;;          (rootPath (fdexControl-rootPath control))
+;;          (currentPath (concat rootPath nodeID)))
+
+;;     (catch 'terminate
+;;       ;; Check whether this node exists
+;;       (unless (file-directory-p currentPath)
+;;         (setf (fdexControl-pendingRemove control) (append (fdexControl-pendingRemove control) (list nodeID)))
+;;         (throw 'terminate t))
+
+;;       ;; Check whether this node need to be updated
+;;       (when (time-less-p (fdex-modify-time currentPath) (fdexNode-updateTime node))
+;;         (setf (fdexControl-pendingUpdate control) (append (fdexControl-pendingUpdate control)(fdexNode-childrenNode node)))
+;;         (throw 'terminate t))
+      
+;;       (let ((contents (directory-files currentPath nil nil 'NOSORT))
+;;             (exclude (fdexControl-exclude control))
+;;             (whitelist (fdexControl-whitelist control))
+;;             (childrenNodes (fdexNode-childrenNode node))
+;;             (childrenNodes-new (fdexNode-childrenNode node))
+;;             (current-folderlist nil)
+;;             (current-filelist nil))
+        
+;;         ;; Check if any entry of children nodes need to be removed
+;;         (dolist (childrenNode childrenNodes)
+;;           (let ((childrenNode-path (concat rootPath childrenNode)))
+;;             (unless (and (file-exists-p childrenNode-path) (file-directory-p childrenNode-path))
+;;               (setq childrenNodes-new (delete childrenNode childrenNodes-new))
+;;               (fdex-clear-cache nodehash)
+;;               (setf (fdexControl-pendingRemove control) (append (list childrenNode) (fdexControl-pendingRemove control))))))
+
+;;         ;; Seperate folder and files in contents
+;;         ;; Put them in current-folderlist and current-filelist
+;;         (dolist (content contents)
+;;           (if (file-directory-p (concat currentPath content))
+;;               (when (fdex-folder-index-p currentPath content exclude whitelist)
+;;                 (setq current-folderlist (nconc (list (file-name-as-directory content)) current-folderlist)))
+;;             (when (fdex-file-index-p currentPath content exclude whitelist)
+;;               (setq current-filelist (nconc (list content) current-filelist)))))
+
+;;         ;; Check if there is any newly added folder by comparing current-folderlist and node-folderlist
+;;         (dolist (folder current-folderlist)
+;;           (unless (member (file-name-as-directory (concat (fdexNode-nodeID node) folder)) childrenNodes-new)
+;;             (let ((newnode (make-fdexNode :nodeID (file-name-as-directory (concat (fdexNode-nodeID node) folder)))))
+;;               (setq childrenNodes-new (append (list (file-name-as-directory (concat (fdexNode-nodeID node) folder))) childrenNodes-new))
+;;               (puthash (file-name-as-directory (concat (fdexNode-nodeID node) folder)) newnode nodehash)
+;;               (fdex-clear-cache nodehash)
+;;               (if priority
+;;                   (setf (fdexControl-priorityUpdate control)
+;;                         (append (fdexControl-priorityUpdate control) (list (file-name-as-directory (concat (fdexNode-nodeID node) folder)))))
+;;                 (setf (fdexControl-pendingUpdate control)
+;;                       (append (fdexControl-pendingUpdate control) (list (file-name-as-directory (concat (fdexNode-nodeID node) folder)))))))))
+
+;;         ;; Sort current-filelist and childrenNodes
+;;         (setq current-filelist (sort current-filelist 'fdex-string-predicate)
+;;               childrenNodes-new (sort childrenNodes-new 'fdex-string-predicate))
+
+;;         (unless (equal (fdexNode-filelist node) current-filelist)
+;;           (fdex-clear-cache nodehash))
+
+;;         (setf (fdexNode-childrenNode node) childrenNodes-new
+;;               (fdexNode-filelist node) current-filelist
+;;               (fdexNode-updateTime node) (current-time)))
+
+;;       t)))
+
+;;; Old implementation of fdex-updateNode
+;;; ========================================
+;; ;;;###autoload
+;; (defun fdex-get-filelist-old (nodehash &optional full)
+;;   "Get a list of files under NODEHASH.
+;; If FULL is t, the list contains full path.
+;; If FULL is nil, the list contains path relative to index root.
+
+;; Return
+;; Type:\t\t string list
+;; Descrip.:\t A list of string of files in NODENASH
+
+;; NODEHASH
+;; Type:\t\t hashtable
+;; Descrip.:\t A hashtable created by `fdex-new'
+
+;; FULL
+;; Type:\t\t bool
+;; Descrip.:\t t for full file path, nil for path relative to index root."
+
+;;   (if (gethash fdex-CACHEDFILELIST nodehash)
+;;       (gethash fdex-CACHEDFILELIST nodehash)
+
+;;     (let ((folderlist nil)
+;;           (filelist nil))
+
+;;       ;; Get filelist and folder list from root nodes
+;;       (setq filelist  (mapcar (apply-partially 'concat (and full (fdexControl-rootPath (gethash fdex-CONTROLNODE nodehash))))
+;;                               (fdexNode-filelist (gethash fdex-ROOTNODE nodehash))))
+;;       (setq folderlist (append (fdexNode-childrenNode (gethash fdex-ROOTNODE nodehash)) folderlist))
+
+;;       (while (car-safe folderlist)
+;;         (let ((folder (car folderlist)))
+;;           (setq folderlist (cdr folderlist))
+;;           (setq filelist (append filelist
+;;                                  (mapcar (apply-partially 'concat (and full (fdexControl-rootPath (gethash fdex-CONTROLNODE nodehash))) folder)
+;;                                          (fdexNode-filelist (gethash folder nodehash)))))
+;;           (setq folderlist (append (fdexNode-childrenNode (gethash folder nodehash)) folderlist))))
+          
+
+;;       (when (fdexControl-cache (gethash fdex-CONTROLNODE nodehash))
+;;         (puthash fdex-CACHEDFILELIST filelist nodehash))
+      
+;;       filelist)))
