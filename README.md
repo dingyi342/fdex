@@ -74,5 +74,50 @@ Use `fdex-get-filelist` to get a list of folders under indexed path.
 (fdex-get-folderlist indextable t)
 ```
 
+#### Performance
+Testing with my computer with an ssd.
+Using `/usr/share/` as the testing folder.
+Total: 9254 folders and 175,443 files.
+Size: 1.6GB
+
+```el
+(setq table (fdex-new "/usr/share/"))
+
+;; Indexing for the first time
+(benchmark-run (fdex-update table))
+;; ==> (13.129276261 60 3.660709439999991)
+
+;; Indexing for the second time
+;; Unless a large portion of files have been changed
+;; Even if files have been added or remove
+;; Performance should be very similar
+(benchmark-run (fdex-update table))
+;; ==> (0.382898054 1 0.0698781670000006)
+
+;; Getting file list for the first time
+(benchmark-run (fdex-get-filelist table))
+;; ==> (3.2519847 4 0.28953332900000106)
+
+;; Getting file list for the second time
+;; If no files/folders has been added/removed
+;; The cached list is used.
+(benchmark-run (fdex-get-filelist table))
+;; ==> (1.969e-06 0 0.0)
+
+;; Getting folder list for the first time
+(benchmark-run (fdex-get-folderlist table))
+;; ==> (0.114238201 0 0.0)
+
+;; Getting folder list for the second time
+;; If no files/folders has been added/removed
+;; The cached list is used.
+(benchmark-run (fdex-get-folderlist table))
+;; ==> (5.423e-06 0 0.0)
+```
+
+#### Limitation
+The number of files (folders) could be indexed is limited.
+It is limited by the maximum size of a hash table and the maximum size of a list.
+With my computer, I failed to obtain a filelist for indexing `/usr/` which has more than 500k files.
 
 [badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
