@@ -138,8 +138,8 @@ Descrip.\t String of regexp to whitelist an excluded FOLDER."
         (throw 'false nil))
       
       ;; Handle exclude and whitelist
-      (when (and exclude (string-match exclude path))
-        (unless (and whitelist (string-match whitelist path))
+      (when (and exclude (string-match exclude fullpath))
+        (unless (and whitelist (string-match whitelist fullpath))
           (throw 'false nil)))
 
       t)))
@@ -177,8 +177,8 @@ Descrip.\t String of regexp to whitelist an excluded FILE."
         (throw 'false nil))
       
       ;; Handle exclude and whitelist
-      (when (and exclude (string-match exclude path))
-        (unless (and whitelist (string-match whitelist path))
+      (when (and exclude (string-match exclude fullpath))
+        (unless (and whitelist (string-match whitelist fullpath))
           (throw 'false nil)))
 
       t)))
